@@ -17,15 +17,14 @@ To do this, follow these steps precisely:
    d. Agent #4: Read the file changes in the pull request, then scan for red flags that violate design philosophy like shallow module/function, information leakage, overexposure, non-obvious code etc. Only flag those violations you have a clear improve path and ignore nit-picking things.
    e. Agent #5: Read code comments in the modified files, and make sure the changes in the pull request comply with guidances, requirements or invariances in the comments.
    f. Agent #6: Read the file changes in the pull request, and find unnecessary or verbose comments, overlapping test coverage cases, code duplications. Flag only real duplication, not tiny style improvement.
-4. For each issue found in step 3, launch a parallel Sonnet agent that takes the PR, issue description, and list of CLAUDE.md files (from step 1), and returns a score to indicate the agent's level of confidence for whether the issue is real or false positive. To do that, the agent should score each issue on a scale from 0-100, indicating its level of confidence. For issues that were flagged due to CLAUDE.md instructions, the agent should double check that the CLAUDE.md actually calls out that issue specifically. The scale is (give this rubric to the agent verbatim):
+4. Update todo list to include every issue found in step 3. Then for each issue, launch a parallel Sonnet agent that takes the PR, issue description, and list of CLAUDE.md files (from step 1), and returns a score to indicate the agent's level of confidence for whether the issue is real or false positive. To do that, the agent should score each issue on a scale from 0-100, indicating its level of confidence. For issues that were flagged due to CLAUDE.md instructions, the agent should double check that the CLAUDE.md actually calls out that issue specifically. The scale is (give this rubric to the agent verbatim):
    a. 0: Not confident at all. This is a false positive that doesn't stand up to light scrutiny, or is a pre-existing issue.
    b. 25: Somewhat confident. This might be a real issue, but may also be a false positive. The agent wasn't able to verify that it's a real issue. If the issue is stylistic, it is one that was not explicitly called out in the relevant CLAUDE.md.
    c. 50: Moderately confident. The agent was able to verify this is a real issue, but it might be a nitpick or not happen very often in practice. Relative to the rest of the PR, it's not very important.
    d. 75: Highly confident. The agent double checked the issue, and verified that it is very likely it is a real issue that will be hit in practice. The existing approach in the PR is insufficient. The issue is very important and will directly impact the code's functionality, or it is an issue that is directly mentioned in the relevant CLAUDE.md.
    e. 100: Absolutely certain. The agent double checked the issue, and confirmed that it is definitely a real issue, that will happen frequently in practice. The evidence directly confirms this.
 5. Filter out any issues with a score less than 70. If there are no issues that meet this criteria, do not proceed.
-6. Use a Sonnet agent to repeat the eligibility check from #1, to make sure that the pull request is still eligible for code review.
-7. Finally, write a report with the result. When writing your report, keep in mind to:
+6. Finally, write a report with the result. When writing your report, keep in mind to:
    a. Keep your output brief
    b. Avoid emojis
    c. Link and cite relevant code, files, and URLs
@@ -55,16 +54,16 @@ Notes:
 Found 3 issues:
 
 1. <brief description of bug> (CLAUDE.md says: "<exact quote from CLAUDE.md>")
-
-<link to file and line with full sha1 + line range for context, eg. https://github.com/anthropics/claude-code/blob/1d54823877c4de72b2316a64032a54afc404e619/README.md#L13-L17>
+<link to file and line with relative path + line range for context, eg. src/lib.rs:13-17>
+<a brief explaination of why this is flagged>
 
 2. <brief description of bug> (some/other/CLAUDE.md says: "<exact quote from CLAUDE.md>")
-
-<link to file and line with full sha1 + line range for context>
+<link to file and line with relative path + line range for context>
+<a brief explaination of why this is flagged>
 
 3. <brief description of bug> (bug due to <file and code snippet>)
-
-<link to file and line with full sha1 + line range for context>
+<link to file and line with relative path + line range for context>
+<a brief explaination of why this is flagged>
 
 ---
 
@@ -74,13 +73,12 @@ Found 3 issues:
 
 ## Auto code review
 
-No issues found. Checked for bugs and CLAUDE.md compliance.
+No issues found.
 
 ---
 
-- When linking to code, follow the following format precisely, otherwise the Markdown preview won't render correctly: https://github.com/anthropics/claude-code/blob/c21d3c10bc8e898b7ac1a2d745bdc9bc4e423afe/package.json#L10-L15
-  - Requires full git sha
-  - You must provide the full sha. Commands like `https://github.com/owner/repo/blob/$(git rev-parse HEAD)/foo/bar` will not work, since your summary will be directly rendered in Markdown.
+- When linking to code, follow the following format precisely, otherwise the Markdown preview won't render correctly: src/lib.rs:13-17
+  - Requires relative path to the project root
   - Repo name must match the repo you're code reviewing
-  - # sign after the file name
-  - Line range format is L[start]-L[end]
+  - : sign after the file name
+  - Line range format is [start]-[end]

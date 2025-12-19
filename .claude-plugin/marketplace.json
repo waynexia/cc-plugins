@@ -1,0 +1,21 @@
+{
+    "name": "wayne-tools",
+    "owner": {
+        "name": "Wayne"
+    },
+    "metadata": {
+        "description": "Personal marketplace for Wayne's Claude Code tools",
+        "version": "1.0.0"
+    },
+    "plugins": [
+        {
+            "name": "pr-review",
+            "source": "./plugins/pr-review",
+            "description": "Review pull request",
+            "category": "review",
+            "tags": [
+                "review"
+            ]
+        }
+    ]
+}
